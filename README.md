@@ -9,9 +9,10 @@
 
 ## 📱 APK の直接ダウンロード・インストール
 
-ビルド済みのAPKファイルを本リポジトリに同期・公開しています。以下のリンクからダウンロードして、Android端末に直接インストールしてご利用いただけます。
+ビルド済みのAPKファイルを本リポジトリに公開しています。以下のリンクからダウンロードして、Android端末に直接インストールしてご利用いただけます。
 
-- 🚀 **[MTC-Crock-v1.0.apk (デバッグビルド済みAPK)](./MTC-Crock-v1.0.apk)**
+- 🚀 **[MTC-Crock-v1.0.apk (GitHub直接ダウンロードリンク)](https://github.com/iwa-kasoutuuuuuka/MTC-Crock/raw/main/MTC-Crock-v1.0.apk)**
+- 📂 **[リポジトリ内のファイルからダウンロード](./MTC-Crock-v1.0.apk)**
 
 ---
 

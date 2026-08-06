@@ -4,8 +4,6 @@ import android.content.pm.ActivityInfo
 import android.os.Build
 import android.os.Bundle
 import android.view.View
-import android.view.WindowInsets
-import android.view.WindowInsetsController
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -15,6 +13,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import com.mtc.crock.clock.ClockViewModel
 import com.mtc.crock.data.SettingsRepository
 import com.mtc.crock.theme.BlackBackground
@@ -40,9 +41,7 @@ class MainActivity : ComponentActivity() {
         // 2. スリープ禁止 (常時点灯)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
-        // 3. 全画面表示 (ステータスバー・ナビゲーションバー非表示)
-        hideSystemUI()
-
+        // 3. UIのレイアウト設定
         setContent {
             val userSettings by viewModel.userSettings.collectAsState()
 
@@ -61,6 +60,9 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+
+        // 4. 全画面・イマーシブモード設定 (安全に適用)
+        hideSystemUI()
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
@@ -71,16 +73,16 @@ class MainActivity : ComponentActivity() {
     }
 
     /**
-     * ステータスバーおよびナビゲーションバーを完全に非表示にする
+     * ステータスバーおよびナビゲーションバーを安全かつ確実に非表示にする
      */
     private fun hideSystemUI() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            window.setDecorFitsSystemWindows(false)
-            window.insetsController?.let { controller ->
-                controller.hide(WindowInsets.Type.statusBars() or WindowInsets.Type.navigationBars())
-                controller.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-            }
-        } else {
+        try {
+            WindowCompat.setDecorFitsSystemWindows(window, false)
+            val controller = WindowInsetsControllerCompat(window, window.decorView)
+            controller.hide(WindowInsetsCompat.Type.statusBars() or WindowInsetsCompat.Type.navigationBars())
+            controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        } catch (e: Exception) {
+            // 例外発生時フォールバック
             @Suppress("DEPRECATION")
             window.decorView.systemUiVisibility = (
                     View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY

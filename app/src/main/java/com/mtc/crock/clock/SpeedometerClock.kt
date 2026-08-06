@@ -260,7 +260,7 @@ fun SpeedometerClock(
                 drawLine(color = SubTextGray, start = Offset(sx, screwY - screwR * 0.6f), end = Offset(sx, screwY + screwR * 0.6f), strokeWidth = 3f)
             }
 
-            // 8. 時計の針描画 (時針・分針)
+            // 8. 時計の針描画 (時針・分針) - より太く力強いデザイン
             val hourLength = innerSize * 0.26f
             val minuteLength = innerSize * 0.40f
 
@@ -268,28 +268,28 @@ fun SpeedometerClock(
             rotate(degrees = uiState.hourAngleDegree - 90f, pivot = center) {
                 val path = Path().apply {
                     moveTo(center.x - 12f, center.y)
-                    lineTo(center.x + hourLength, center.y - 6f)
-                    lineTo(center.x + hourLength + 10f, center.y)
-                    lineTo(center.x + hourLength, center.y + 6f)
+                    lineTo(center.x + hourLength, center.y - 14f)
+                    lineTo(center.x + hourLength + 12f, center.y)
+                    lineTo(center.x + hourLength, center.y + 14f)
                     lineTo(center.x - 12f, center.y)
                     close()
                 }
                 drawPath(path = path, color = VintageYellowHand)
-                drawPath(path = path, color = BlackBackground, style = Stroke(2.5f))
+                drawPath(path = path, color = BlackBackground, style = Stroke(3.5f))
             }
 
             // 分針 (Minute Hand)
             rotate(degrees = uiState.minuteAngleDegree - 90f, pivot = center) {
                 val path = Path().apply {
                     moveTo(center.x - 16f, center.y)
-                    lineTo(center.x + minuteLength, center.y - 4f)
-                    lineTo(center.x + minuteLength + 12f, center.y)
-                    lineTo(center.x + minuteLength, center.y + 4f)
+                    lineTo(center.x + minuteLength, center.y - 10f)
+                    lineTo(center.x + minuteLength + 14f, center.y)
+                    lineTo(center.x + minuteLength, center.y + 10f)
                     lineTo(center.x - 16f, center.y)
                     close()
                 }
                 drawPath(path = path, color = VintageYellowHand)
-                drawPath(path = path, color = BlackBackground, style = Stroke(2.5f))
+                drawPath(path = path, color = BlackBackground, style = Stroke(3.5f))
             }
 
             // 9. イエローセンターハブキャップ

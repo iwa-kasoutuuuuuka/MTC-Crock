@@ -190,12 +190,15 @@ fun SpeedometerClock(
                     center = dotPos
                 )
 
-                // 外周数字配置
-                val numberR = radius - innerSize * 0.11f
+                // 外周数字配置 (FontMetricsと半径の最適化で完全に揃える)
+                val numberR = radius - innerSize * 0.02f
                 val numberX = (center.x + numberR * cos(angleRad)).toFloat()
-                val numberY = (center.y + numberR * sin(angleRad)).toFloat() + 16f
-
+                
                 val paint = if (isRedZone) textPaintRed else textPaintWhite
+                val fontMetrics = paint.fontMetrics
+                val yOffset = -(fontMetrics.ascent + fontMetrics.descent) / 2f
+                val numberY = (center.y + numberR * sin(angleRad)).toFloat() + yOffset
+
                 drawContext.canvas.nativeCanvas.drawText(numText, numberX, numberY, paint)
             }
 

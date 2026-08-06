@@ -93,13 +93,9 @@ class ClockViewModel(application: Application) : AndroidViewModel(application) {
                 val second = calendar.get(Calendar.SECOND)
                 val millisecond = calendar.get(Calendar.MILLISECOND)
 
-                // 針角度の算定 (滑らかなスムーズスイープ)
-                // 12時間盤面 0〜360度
-                val minuteFraction = (minute * 60 + second + millisecond / 1000.0f) / 3600.0f
-                val hourFraction = (hour % 12 + minuteFraction) / 12.0f
-
-                val hourDegree = hourFraction * 360.0f
-                val minuteDegree = minuteFraction * 360.0f
+                // 針角度の算定 (時針・分針のなだらかな連動スイープ)
+                val hourDegree = (hour % 12) * 30.0f + minute * 0.5f + second * (0.5f / 60f)
+                val minuteDegree = minute * 6.0f + second * 0.1f
 
                 // 昼夜自動明るさ制御判定
                 val currentHour24 = calendar.get(Calendar.HOUR_OF_DAY)

@@ -251,7 +251,14 @@ private fun SwitchSettingRow(
         Switch(
             checked = checked,
             onCheckedChange = onCheckedChange,
-            colors = SwitchDefaults.colors(checkedThumbColor = MaterialTheme.colorScheme.primary)
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = androidx.compose.ui.graphics.Color.White,
+                checkedTrackColor = androidx.compose.ui.graphics.Color(0xFFDC2626),
+                checkedBorderColor = androidx.compose.ui.graphics.Color.Transparent,
+                uncheckedThumbColor = androidx.compose.ui.graphics.Color(0xFF9CA3AF),
+                uncheckedTrackColor = androidx.compose.ui.graphics.Color(0xFF374151),
+                uncheckedBorderColor = androidx.compose.ui.graphics.Color.Transparent
+            )
         )
     }
 }

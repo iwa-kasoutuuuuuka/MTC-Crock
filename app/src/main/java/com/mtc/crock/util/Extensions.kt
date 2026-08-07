@@ -50,6 +50,14 @@ fun Date.toFormattedDateString(): String {
 }
 
 /**
+ * Dateオブジェクトから時刻文字列（HH:mm）に変換する拡張関数
+ */
+fun Date.toTimeString(): String {
+    val formatter = SimpleDateFormat("HH:mm", Locale.getDefault())
+    return formatter.format(this)
+}
+
+/**
  * Dateオブジェクトから曜日（日本語表記または英語表記）を取得する拡張関数
  */
 fun Date.toDayOfWeekString(): String {

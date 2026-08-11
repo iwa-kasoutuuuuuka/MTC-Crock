@@ -266,146 +266,158 @@ fun SpeedometerClock(
                 cornerRadius = CornerRadius(outerCornerR * 0.82f, outerCornerR * 0.82f)
             )
 
-            // 2. メイン文字盤 (正方形領域)
-            val dialPadding = outerWidth * 0.080f
-            val dialSize = outerWidth - dialPadding * 2f
-            val dialLeft = outerLeft + dialPadding
-            val dialTop = outerTop + outerWidth * 0.065f
-            val dialCenter = Offset(dialLeft + dialSize / 2f, dialTop + dialSize / 2f)
-            val dialCornerR = outerCornerR * 0.50f
 
-            // 文字盤背景 (スクエア)
-            drawRoundRect(
-                color = DialBgColor,
-                topLeft = Offset(dialLeft, dialTop),
-                size = Size(dialSize, dialSize),
-                cornerRadius = CornerRadius(dialCornerR, dialCornerR)
+            // 2. メイン文字盤 (円形 ラウンドダイアル)
+            val dialRadius = outerWidth * 0.420f
+            val dialCenter = Offset(
+                center.x,
+                center.y - outerHeight * 0.035f
             )
 
-            // 3. HONDA純正 エメラルドグリーン格子模様 (縦4本×横5本)
-            val vCols = 5
-            for (i in 1 until vCols) {
-                val gx = dialLeft + (dialSize / vCols) * i
+            // クリッピング用パスに円形を設定
+            val clipPath = Path().apply {
+                addOval(androidx.compose.ui.geometry.Rect(
+                    dialCenter.x - dialRadius,
+                    dialCenter.y - dialRadius,
+                    dialCenter.x + dialRadius,
+                    dialCenter.y + dialRadius
+                ))
+            }
+
+            // 文字盤背景 (ダークグリーン円形)
+            drawCircle(
+                color = Color(0xFF0D1A0D),
+                radius = dialRadius,
+                center = dialCenter
+            )
+
+            // 3. レーダー風グリッド: 同心円 + 放射線 (円形クリップ内のみ描画)
+            drawContext.canvas.save()
+            drawContext.canvas.clipPath(clipPath)
+
+            // 同心円 (3本)
+            val concCircles = listOf(0.28f, 0.52f, 0.76f)
+            for (fraction in concCircles) {
+                drawCircle(
+                    color = GridLineGreen.copy(alpha = 0.55f),
+                    radius = dialRadius * fraction,
+                    center = dialCenter,
+                    style = Stroke(width = 1.8f)
+                )
+            }
+
+            // 放射線 (12本: 30度刻み)
+            for (i in 0 until 12) {
+                val angleDeg = i * 30f
+                val angleRad = Math.toRadians(angleDeg.toDouble())
                 drawLine(
-                    color = GridLineGreen,
-                    start = Offset(gx, dialTop + 6f),
-                    end = Offset(gx, dialTop + dialSize - 6f),
-                    strokeWidth = 2.2f
+                    color = GridLineGreen.copy(alpha = 0.45f),
+                    start = dialCenter,
+                    end = Offset(
+                        dialCenter.x + (dialRadius * Math.cos(angleRad)).toFloat(),
+                        dialCenter.y + (dialRadius * Math.sin(angleRad)).toFloat()
+                    ),
+                    strokeWidth = 1.8f
                 )
             }
+            drawContext.canvas.restore()
 
-            val hRows = 6
-            for (i in 1 until hRows) {
-                val gy = dialTop + (dialSize / hRows) * i
-                drawLine(
-                    color = GridLineGreen,
-                    start = Offset(dialLeft + 6f, gy),
-                    end = Offset(dialLeft + dialSize - 6f, gy),
-                    strokeWidth = 2.2f
-                )
-            }
-
-            // 深いインナーシャドウ
-            val shadowSteps = 6
-            for (s in 0 until shadowSteps) {
-                val offset = s * 2.5f
-                val alpha = (1f - s.toFloat() / shadowSteps) * 0.35f
-                drawRoundRect(
-                    color = Color.Black.copy(alpha = alpha),
-                    topLeft = Offset(dialLeft + offset, dialTop + offset),
-                    size = Size(dialSize - offset * 2f, dialSize - offset * 2f),
-                    cornerRadius = CornerRadius(dialCornerR - offset * 0.5f, dialCornerR - offset * 0.5f),
-                    style = Stroke(width = 3f)
-                )
-            }
-
-            // 4. 赤帯 (モトコンポ 30km/h 原付速度警告レッドアーチ): R_arc = dialSize * 0.235f
-            val arcRadius = dialSize * 0.235f
-            val arcStrokeWidth = dialSize * 0.085f
+            // 4. 赤帯 (モトコンポ 速度警告レッドゾーン): 外周アーチ目盛り帯 (8〜12時 = 9〜12クロック)
+            val redArcRadius = dialRadius * 0.88f
+            val redArcStrokeW = dialRadius * 0.090f
+            // 9時(-180°)から12時(-90°)まで: sweepAngle=90
             drawArc(
-                color = DialTextRed.copy(alpha = 0.98f),
+                color = DialTextRed.copy(alpha = 0.92f),
                 startAngle = 180f,
                 sweepAngle = 90f,
                 useCenter = false,
-                topLeft = Offset(dialCenter.x - arcRadius, dialCenter.y - arcRadius),
-                size = Size(arcRadius * 2f, arcRadius * 2f),
-                style = Stroke(width = arcStrokeWidth, cap = StrokeCap.Butt)
+                topLeft = Offset(dialCenter.x - redArcRadius, dialCenter.y - redArcRadius),
+                size = Size(redArcRadius * 2f, redArcRadius * 2f),
+                style = Stroke(width = redArcStrokeW, cap = StrokeCap.Butt)
             )
+            // 赤帯の細かい刻み目 (9〜12時方向: 9本)
+            for (i in 0..8) {
+                val angleDeg = 180f + i * 10f
+                val angleRad = Math.toRadians(angleDeg.toDouble())
+                val innerR = redArcRadius - redArcStrokeW / 2f
+                val outerR = redArcRadius + redArcStrokeW / 2f
+                drawLine(
+                    color = Color(0xFF600000).copy(alpha = 0.7f),
+                    start = Offset(
+                        dialCenter.x + (innerR * Math.cos(angleRad)).toFloat(),
+                        dialCenter.y + (innerR * Math.sin(angleRad)).toFloat()
+                    ),
+                    end = Offset(
+                        dialCenter.x + (outerR * Math.cos(angleRad)).toFloat(),
+                        dialCenter.y + (outerR * Math.sin(angleRad)).toFloat()
+                    ),
+                    strokeWidth = 2.5f
+                )
+            }
 
-            // 5. 白い刻み (Minute Ticks: 外端は四角枠に密着、放射状ライン)
-            val boxHalf = dialSize * 0.470f
+            // 5. 放射状 刻み目 (円周上: Minute Ticks 60個)
             for (i in 0 until 60) {
                 val angleDeg = i * 6f - 90f
                 val angleRad = Math.toRadians(angleDeg.toDouble())
-                val cosA = Math.cos(angleRad)
-                val sinA = Math.sin(angleRad)
-
-                val absCos = Math.abs(cosA)
-                val absSin = Math.abs(sinA)
-
-                val scale = minOf(
-                    if (absCos > 1e-4) boxHalf / absCos else Double.MAX_VALUE,
-                    if (absSin > 1e-4) boxHalf / absSin else Double.MAX_VALUE
-                ).toFloat()
-
-                val endX = dialCenter.x + scale * cosA.toFloat()
-                val endY = dialCenter.y + scale * sinA.toFloat()
-
                 val isMajor = i % 5 == 0
-                val tLen = if (isMajor) dialSize * 0.040f else dialSize * 0.022f
+                val outerR = dialRadius * 0.97f
+                val innerR = if (isMajor) dialRadius * 0.84f else dialRadius * 0.90f
                 val tWidth = if (isMajor) 3.5f else 1.8f
-
-                val startX = endX - tLen * cosA.toFloat()
-                val startY = endY - tLen * sinA.toFloat()
+                // 9〜12時の目盛りは赤帯ゾーンに隠れるのでスキップ
+                val skipRed = i in 46..59 || i == 0
+                val tickColor = if (!skipRed) DialTextWhite
+                    else DialTextWhite.copy(alpha = 0f)
 
                 drawLine(
-                    color = DialTextWhite,
-                    start = Offset(startX, startY),
-                    end = Offset(endX, endY),
+                    color = tickColor,
+                    start = Offset(
+                        (dialCenter.x + innerR * Math.cos(angleRad)).toFloat(),
+                        (dialCenter.y + innerR * Math.sin(angleRad)).toFloat()
+                    ),
+                    end = Offset(
+                        (dialCenter.x + outerR * Math.cos(angleRad)).toFloat(),
+                        (dialCenter.y + outerR * Math.sin(angleRad)).toFloat()
+                    ),
                     strokeWidth = tWidth
                 )
             }
 
-            // 6. 直立文字盤数字 (1〜12) の配置: fontSize = 0.145f
-            val fontSize = dialSize * 0.145f
-            textPaintWhite.textSize = fontSize
-            textPaintRed.textSize = fontSize
-
-            val numPositions = mapOf(
-                12 to Offset(dialCenter.x, dialTop + dialSize * 0.14f),
-                1  to Offset(dialLeft + dialSize * 0.69f, dialTop + dialSize * 0.14f),
-                2  to Offset(dialLeft + dialSize * 0.86f, dialTop + dialSize * 0.28f),
-                3  to Offset(dialLeft + dialSize * 0.87f, dialCenter.y),
-                4  to Offset(dialLeft + dialSize * 0.86f, dialTop + dialSize * 0.72f),
-                5  to Offset(dialLeft + dialSize * 0.69f, dialTop + dialSize * 0.86f),
-                6  to Offset(dialCenter.x, dialTop + dialSize * 0.86f),
-                7  to Offset(dialLeft + dialSize * 0.31f, dialTop + dialSize * 0.86f),
-                8  to Offset(dialLeft + dialSize * 0.14f, dialTop + dialSize * 0.72f),
-                9  to Offset(dialLeft + dialSize * 0.13f, dialCenter.y),
-                10 to Offset(dialLeft + dialSize * 0.145f, dialTop + dialSize * 0.28f),
-                11 to Offset(dialLeft + dialSize * 0.31f, dialTop + dialSize * 0.14f)
-            )
-
-            for (i in 1..12) {
-                val pos = numPositions[i] ?: continue
-                val isRed = i in 9..12
-                val paint = if (isRed) textPaintRed else textPaintWhite
-                val fontMetrics = paint.fontMetrics
-                val baselineY = pos.y - (fontMetrics.ascent + fontMetrics.descent) / 2f
-
-                drawContext.canvas.nativeCanvas.drawText(
-                    i.toString(),
-                    pos.x,
-                    baselineY,
-                    paint
+            // 深いインナーシャドウ（円形）
+            for (s in 0 until 6) {
+                val offset = s * 2.5f
+                val alpha = (1f - s.toFloat() / 6) * 0.30f
+                drawCircle(
+                    color = Color.Black.copy(alpha = alpha),
+                    radius = dialRadius - offset,
+                    center = dialCenter,
+                    style = Stroke(width = 3f)
                 )
             }
 
+            // 6. 直立文字盤数字 (1〜12) 円周上に均等配置
+            val numRadius = dialRadius * 0.73f
+            val fontSize = dialRadius * 0.19f
+            textPaintWhite.textSize = fontSize
+            textPaintRed.textSize = fontSize
+
+            for (i in 1..12) {
+                val angleDeg = i * 30f - 90f
+                val angleRad = Math.toRadians(angleDeg.toDouble())
+                val nx = dialCenter.x + (numRadius * Math.cos(angleRad)).toFloat()
+                val ny = dialCenter.y + (numRadius * Math.sin(angleRad)).toFloat()
+                val isRed = i in 9..12
+                val paint = if (isRed) textPaintRed else textPaintWhite
+                val fontMetrics = paint.fontMetrics
+                val baselineY = ny - (fontMetrics.ascent + fontMetrics.descent) / 2f
+                drawContext.canvas.nativeCanvas.drawText(i.toString(), nx, baselineY, paint)
+            }
+
+
             // 7. ネジ 2個 (3D リアル立体ビス)
-            val screwRadius = dialSize * 0.048f
-            val screwY = dialTop + (dialSize / 6f) * 4f
-            val screwX1 = dialLeft + (dialSize / 5f) * 1.5f
-            val screwX2 = dialLeft + (dialSize / 5f) * 3.5f
+            val screwRadius = dialRadius * 0.048f
+            val screwY = dialCenter.y + dialRadius * 0.30f
+            val screwX1 = dialCenter.x - dialRadius * 0.28f
+            val screwX2 = dialCenter.x + dialRadius * 0.28f
 
             listOf(screwX1, screwX2).forEach { sx ->
                 drawCircle(color = ScrewHoleBg, radius = screwRadius * 1.25f, center = Offset(sx, screwY))
@@ -429,15 +441,15 @@ fun SpeedometerClock(
             }
 
             // 8. HONDA モトコンポ純正 マスタードイエロー 3D アナログ針描画
-            val hourHandLength = dialSize * 0.33f
-            val minuteHandLength = dialSize * 0.46f
+            val hourHandLength = dialRadius * 0.55f
+            val minuteHandLength = dialRadius * 0.78f
             val shadowOffset = Offset(8f, 8f)
 
             // --- 時針 (Hour Hand) ---
             rotate(degrees = uiState.hourAngleDegree - 90f, pivot = dialCenter) {
                 val L = hourHandLength
-                val W = dialSize * 0.062f
-                val T = dialSize * 0.035f
+                val W = dialRadius * 0.062f
+                val T = dialRadius * 0.035f
 
                 val shadowPath = Path().apply {
                     moveTo(dialCenter.x - T + shadowOffset.x, dialCenter.y - W + shadowOffset.y)
@@ -494,8 +506,8 @@ fun SpeedometerClock(
             // --- 分針 (Minute Hand) ---
             rotate(degrees = uiState.minuteAngleDegree - 90f, pivot = dialCenter) {
                 val L = minuteHandLength
-                val W = dialSize * 0.050f
-                val T = dialSize * 0.035f
+                val W = dialRadius * 0.050f
+                val T = dialRadius * 0.035f
 
                 val shadowPath = Path().apply {
                     moveTo(dialCenter.x - T + shadowOffset.x, dialCenter.y - W + shadowOffset.y)
@@ -550,7 +562,7 @@ fun SpeedometerClock(
             }
 
             // 9. 3D センターハブキャップ (2段ドーム構造)
-            val capR1 = dialSize * 0.088f
+            val capR1 = dialRadius * 0.088f
             val capR2 = capR1 * 0.50f
 
             drawCircle(color = HandDropShadow, radius = capR1 * 1.15f, center = Offset(dialCenter.x + 6f, dialCenter.y + 6f))
@@ -579,9 +591,9 @@ fun SpeedometerClock(
             drawCircle(color = InnerBezelFrame, radius = capR2, center = dialCenter, style = Stroke(1.8f))
 
             // 10. ベゼル最下部: オドメーター風 7セグTN液晶パネル
-            val lcdWidth = dialSize * 0.70f
+            val lcdWidth = dialRadius * 1.40f
             val lcdHeight = lcdWidth * 0.220f
-            val lcdTop = dialTop + dialSize + outerHeight * 0.015f
+            val lcdTop = dialCenter.y + dialRadius + outerHeight * 0.012f
             val lcdTopLeft = Offset(
                 center.x - lcdWidth / 2f,
                 lcdTop

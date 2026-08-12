@@ -40,7 +40,7 @@ private val InnerBezelFrame = Color(0xFF0B0C0D)
 
 private val DialBgColor = Color(0xFF121315)
 // ホンダ純正 モトコンポ エメラルドグリーン格子
-private val GridLineGreen = Color(0xFF339966).copy(alpha = 0.88f)
+private val GridLineGreen = Color(0xFF44DD44).copy(alpha = 0.90f)
 
 private val DialTextWhite = Color(0xFFF3F4F6)
 private val DialTextRed = Color(0xFFDC2626) // モトコンポ 30km/h 速度警告レッド
@@ -290,7 +290,7 @@ fun SpeedometerClock(
                     color = GridLineGreen,
                     start = Offset(gx, dialTop + 6f),
                     end = Offset(gx, dialTop + dialSize - 6f),
-                    strokeWidth = 2.2f
+                    strokeWidth = 3.0f
                 )
             }
 
@@ -301,7 +301,7 @@ fun SpeedometerClock(
                     color = GridLineGreen,
                     start = Offset(dialLeft + 6f, gy),
                     end = Offset(dialLeft + dialSize - 6f, gy),
-                    strokeWidth = 2.2f
+                    strokeWidth = 3.0f
                 )
             }
 
@@ -319,13 +319,13 @@ fun SpeedometerClock(
                 )
             }
 
-            // 4. 赤帯 (モトコンポ 30km/h 原付速度警告レッドアーチ): R_arc = dialSize * 0.235f
-            val arcRadius = dialSize * 0.235f
-            val arcStrokeWidth = dialSize * 0.085f
+            // 4. 赤帯 (モトコンポ 30km/h 原付速度警告レッドアーチ): 9時→12時→3時の大型半円180°
+            val arcRadius = dialSize * 0.38f
+            val arcStrokeWidth = dialSize * 0.130f
             drawArc(
                 color = DialTextRed.copy(alpha = 0.98f),
                 startAngle = 180f,
-                sweepAngle = 90f,
+                sweepAngle = 180f,
                 useCenter = false,
                 topLeft = Offset(dialCenter.x - arcRadius, dialCenter.y - arcRadius),
                 size = Size(arcRadius * 2f, arcRadius * 2f),
@@ -367,7 +367,7 @@ fun SpeedometerClock(
             }
 
             // 6. 直立文字盤数字 (1〜12) の配置: fontSize = 0.145f
-            val fontSize = dialSize * 0.145f
+            val fontSize = dialSize * 0.165f
             textPaintWhite.textSize = fontSize
             textPaintRed.textSize = fontSize
 
@@ -436,8 +436,8 @@ fun SpeedometerClock(
             // --- 時針 (Hour Hand) ---
             rotate(degrees = uiState.hourAngleDegree - 90f, pivot = dialCenter) {
                 val L = hourHandLength
-                val W = dialSize * 0.062f
-                val T = dialSize * 0.035f
+                val W = dialSize * 0.100f
+                val T = dialSize * 0.050f
 
                 val shadowPath = Path().apply {
                     moveTo(dialCenter.x - T + shadowOffset.x, dialCenter.y - W + shadowOffset.y)
@@ -494,8 +494,8 @@ fun SpeedometerClock(
             // --- 分針 (Minute Hand) ---
             rotate(degrees = uiState.minuteAngleDegree - 90f, pivot = dialCenter) {
                 val L = minuteHandLength
-                val W = dialSize * 0.050f
-                val T = dialSize * 0.035f
+                val W = dialSize * 0.080f
+                val T = dialSize * 0.050f
 
                 val shadowPath = Path().apply {
                     moveTo(dialCenter.x - T + shadowOffset.x, dialCenter.y - W + shadowOffset.y)
@@ -549,8 +549,8 @@ fun SpeedometerClock(
                 drawPath(path = fullPath, color = InnerBezelFrame, style = Stroke(2.0f))
             }
 
-            // 9. 3D センターハブキャップ (2段ドーム構造)
-            val capR1 = dialSize * 0.088f
+            // 9. 3D センターハブキャップ (2段ドーム構造: 大型化)
+            val capR1 = dialSize * 0.110f
             val capR2 = capR1 * 0.50f
 
             drawCircle(color = HandDropShadow, radius = capR1 * 1.15f, center = Offset(dialCenter.x + 6f, dialCenter.y + 6f))
@@ -631,11 +631,11 @@ fun SpeedometerClock(
             val amPmStr = uiState.currentTime.toAmPmString()
 
             val weatherStr = if (userSettings.showWeather) {
-                "Sunny, ${uiState.weatherInfo.temperatureCelsius.toFormattedTemperature(userSettings.temperatureUnit)}"
+                "⛅${uiState.weatherInfo.temperatureCelsius.toFormattedTemperature(userSettings.temperatureUnit)}"
             } else ""
 
             val batteryStr = if (userSettings.showBattery) {
-                "⚡${uiState.batteryState.levelPercentage.toPercentString()}"
+                "🔋${uiState.batteryState.levelPercentage.toPercentString()}"
             } else ""
 
             // --- TN液晶テキスト描画 ---

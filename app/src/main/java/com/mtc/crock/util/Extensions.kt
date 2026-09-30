@@ -21,6 +21,18 @@ fun Double.toFormattedTemperature(unit: TemperatureUnit): String {
 }
 
 /**
+ * 摂氏(°C)のDouble値を指定された単位(°C/°F)に変換し、整数値＋記号にフォーマットする拡張関数 (例: 72°F)
+ */
+fun Double.toFormattedIntTemperature(unit: TemperatureUnit): String {
+    val value = if (unit == TemperatureUnit.FAHRENHEIT) {
+        this * 9.0 / 5.0 + 32.0
+    } else {
+        this
+    }
+    return "${Math.round(value)}${unit.symbol}"
+}
+
+/**
  * 摂氏(°C)のFloat値を指定された単位(°C/°F)に変換・フォーマットする拡張関数
  */
 fun Float.toFormattedTemperature(unit: TemperatureUnit): String {

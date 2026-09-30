@@ -32,7 +32,7 @@ data class UserSettings(
     val showDate: Boolean = true,
     val showBattery: Boolean = true,
     val showWeather: Boolean = true,
-    val temperatureUnit: TemperatureUnit = TemperatureUnit.CELSIUS,
+    val temperatureUnit: TemperatureUnit = TemperatureUnit.FAHRENHEIT,
     val theme: AppTheme = AppTheme.SPORT,
     val dayBrightness: Float = Constants.DEFAULT_DAY_BRIGHTNESS,
     val nightBrightness: Float = Constants.DEFAULT_NIGHT_BRIGHTNESS,

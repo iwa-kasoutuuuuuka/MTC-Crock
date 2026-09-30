@@ -39,13 +39,14 @@ class WeatherRepository(private val context: Context) {
                     val hourly = body.hourly
 
                     val code = currentWeather?.weatherCode ?: 0
-                    val (conditionText, iconSymbol) = parseWmoWeatherCode(code)
+                    val (conditionText, conditionEn, iconSymbol) = parseWmoWeatherCode(code)
                     val humidity = hourly?.humidityList?.getOrNull(0) ?: 50
                     val precipProb = hourly?.precipitationProbabilityList?.getOrNull(0) ?: 0
                     val timeStr = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
 
                     val newInfo = WeatherInfo(
                         conditionText = conditionText,
+                        conditionTextEn = conditionEn,
                         weatherIconSymbol = iconSymbol,
                         temperatureCelsius = currentWeather?.temperature ?: 20.0,
                         humidityPercent = humidity,
@@ -92,17 +93,17 @@ class WeatherRepository(private val context: Context) {
     /**
      * WMO Weather interpretation codes (WW) の解析変換
      */
-    private fun parseWmoWeatherCode(code: Int): Pair<String, String> {
+     private fun parseWmoWeatherCode(code: Int): Triple<String, String, String> {
         return when (code) {
-            0 -> Pair("快晴", "☀️")
-            1, 2, 3 -> Pair("晴れ/薄曇り", "⛅")
-            45, 48 -> Pair("霧", "🌫️")
-            51, 53, 55 -> Pair("霧雨", "🌧️")
-            61, 63, 65 -> Pair("雨", "☔")
-            71, 73, 75 -> Pair("雪", "❄️")
-            80, 81, 82 -> Pair("にわか雨", "🌦️")
-            95, 96, 99 -> Pair("雷雨", "⚡")
-            else -> Pair("晴れ", "☀️")
+            0 -> Triple("快晴", "Sunny", "☀️")
+            1, 2, 3 -> Triple("晴れ/薄曇り", "Sunny", "⛅")
+            45, 48 -> Triple("霧", "Foggy", "🌫️")
+            51, 53, 55 -> Triple("霧雨", "Drizzle", "🌧️")
+            61, 63, 65 -> Triple("雨", "Rain", "☔")
+            71, 73, 75 -> Triple("雪", "Snow", "❄️")
+            80, 81, 82 -> Triple("にわか雨", "Showers", "🌦️")
+            95, 96, 99 -> Triple("雷雨", "Storm", "⚡")
+            else -> Triple("晴れ", "Sunny", "☀️")
         }
     }
 }

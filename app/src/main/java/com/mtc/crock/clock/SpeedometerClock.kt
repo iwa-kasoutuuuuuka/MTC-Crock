@@ -22,49 +22,48 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import com.mtc.crock.data.UserSettings
 import com.mtc.crock.util.toAmPmString
-import com.mtc.crock.util.toDayOfWeekString
-import com.mtc.crock.util.toFormattedDateString
-import com.mtc.crock.util.toFormattedTemperature
+import com.mtc.crock.util.toFormattedIntTemperature
 import com.mtc.crock.util.toPercentString
 import com.mtc.crock.util.toTimeString
 import java.text.SimpleDateFormat
 import java.util.Locale
 
 // HONDA モトコンポ (NC50) スピードメーター 完全再現トーン＆カラー
-private val BezelTopHighlight = Color(0xFF3C3E42)
-private val BezelBodyStart = Color(0xFF26282C)
+private val BezelTopHighlight = Color(0xFF424448)
+private val BezelBodyStart = Color(0xFF282A2E)
 private val BezelBodyEnd = Color(0xFF141517)
-private val BezelWallDark = Color(0xFF040506)
-private val BezelWallLight = Color(0xFF1E2023)
-private val InnerBezelFrame = Color(0xFF0B0C0D)
+private val BezelWallDark = Color(0xFF060708)
+private val BezelWallLight = Color(0xFF1F2124)
+private val InnerBezelFrame = Color(0xFF0A0B0C)
 
-private val DialBgColor = Color(0xFF121315)
+private val DialBgColor = Color(0xFF151618)
 // ホンダ純正 モトコンポ エメラルドグリーン格子
-private val GridLineGreen = Color(0xFF44DD44).copy(alpha = 0.90f)
+private val GridLineGreen = Color(0xFF3EB459).copy(alpha = 0.82f)
 
-private val DialTextWhite = Color(0xFFF3F4F6)
-private val DialTextRed = Color(0xFFDC2626) // モトコンポ 30km/h 速度警告レッド
+private val DialTextWhite = Color(0xFFFFFFFF)
+private val DialTextRed = Color(0xFFE22D2D) // モトコンポ 30km/h 速度警告レッド
+private val RedArcColor = Color(0xFFB81E1E)
 
 // HONDA 純正マスタードイエロー 3D メーター針
-private val HandYellowHighlight = Color(0xFFFDE047)
-private val HandYellowMain = Color(0xFFEAB308)
-private val HandYellowShadow = Color(0xFFA16207)
-private val HandYellowDarkShadow = Color(0xFF543403)
-private val HandDropShadow = Color(0xFF000000).copy(alpha = 0.55f)
+private val HandYellowHighlight = Color(0xFFFDC52F)
+private val HandYellowMain = Color(0xFFEAA615)
+private val HandYellowShadow = Color(0xFFC78408)
+private val HandYellowDarkShadow = Color(0xFF8F5A02)
+private val HandDropShadow = Color(0xFF000000).copy(alpha = 0.60f)
 
-// 3D ビスカラー
-private val ScrewHoleBg = Color(0xFF060708)
-private val ScrewHeadStart = Color(0xFF36393D)
-private val ScrewHeadEnd = Color(0xFF101113)
-private val ScrewSlotShadow = Color(0xFF030304)
-private val ScrewSlotHighlight = Color(0xFF4D5055)
+// 3D ビスカラー (添付画像通りの質感とスリットコントラスト)
+private val ScrewHoleBg = Color(0xFF040506)
+private val ScrewHeadStart = Color(0xFF4A4E54)
+private val ScrewHeadEnd = Color(0xFF1A1C1F)
+private val ScrewSlotShadow = Color(0xFF020203)
+private val ScrewSlotHighlight = Color(0xFF6E737B)
 
 // TN液晶カラー (オドメーター風 レトロオリーブセピア)
-private val LcdGlassStart = Color(0xFF909A88)
-private val LcdGlassEnd = Color(0xFFA2AC9A)
+private val LcdGlassStart = Color(0xFF98A693)
+private val LcdGlassEnd = Color(0xFFA5B2A0)
 private val LcdFrameShadow = Color(0xFF060708)
-private val LcdTextDark = Color(0xFF161C14)
-private val LcdTextGhost = Color(0x16161C14)
+private val LcdTextDark = Color(0xFF141A12)
+private val LcdTextGhost = Color(0x18141A12)
 
 /**
  * リアル7セグメント液晶文字描画エンジン (角張りデジタルバー)
@@ -75,8 +74,8 @@ private fun DrawScope.draw7SegmentDigit(
     digitWidth: Float,
     digitHeight: Float,
     color: Color,
-    thickness: Float = digitWidth * 0.26f,
-    skew: Float = digitWidth * 0.08f
+    thickness: Float = digitWidth * 0.25f,
+    skew: Float = digitWidth * 0.05f
 ) {
     val segMap = mapOf(
         '0' to setOf('A', 'B', 'C', 'D', 'E', 'F'),
@@ -167,15 +166,16 @@ fun SpeedometerClock(
     userSettings: UserSettings,
     modifier: Modifier = Modifier
 ) {
-    val condensedBoldTypeface = remember {
-        Typeface.create("sans-serif-condensed", Typeface.BOLD)
+    // 添付画像のドッシリとした太字サンセリフ書体
+    val boldTypeface = remember {
+        Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD)
     }
 
     val textPaintWhite = remember {
         Paint().apply {
             color = DialTextWhite.toArgb()
             textSize = 72f
-            typeface = condensedBoldTypeface
+            typeface = boldTypeface
             textAlign = Paint.Align.CENTER
             isAntiAlias = true
         }
@@ -185,7 +185,7 @@ fun SpeedometerClock(
         Paint().apply {
             color = DialTextRed.toArgb()
             textSize = 72f
-            typeface = condensedBoldTypeface
+            typeface = boldTypeface
             textAlign = Paint.Align.CENTER
             isAntiAlias = true
         }
@@ -195,7 +195,7 @@ fun SpeedometerClock(
         Paint().apply {
             color = LcdTextDark.toArgb()
             textSize = 20f
-            typeface = Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD)
+            typeface = boldTypeface
             textAlign = Paint.Align.LEFT
             isAntiAlias = true
         }
@@ -205,7 +205,7 @@ fun SpeedometerClock(
         Paint().apply {
             color = LcdTextDark.toArgb()
             textSize = 20f
-            typeface = Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD)
+            typeface = boldTypeface
             textAlign = Paint.Align.RIGHT
             isAntiAlias = true
         }
@@ -216,17 +216,17 @@ fun SpeedometerClock(
             val width = size.width
             val height = size.height
 
-            // 1. アウターケース (HONDAモトコンポ 重厚スクエア樹脂ボディ 1.090f 比率)
-            val outerWidth = minOf(width * 0.90f, height * 0.84f)
-            val outerHeight = outerWidth * 1.090f
+            // 1. アウターケース (HONDAモトコンポ 重厚スクエア樹脂ボディ)
+            val outerWidth = minOf(width * 0.90f, height * 0.86f)
+            val outerHeight = outerWidth * 1.085f
             val center = Offset(
                 width / 2f + uiState.burnInOffset.offsetX,
-                (height / 2f - outerHeight * 0.01f) + uiState.burnInOffset.offsetY
+                (height / 2f - outerHeight * 0.008f) + uiState.burnInOffset.offsetY
             )
 
             val outerLeft = center.x - outerWidth / 2f
             val outerTop = center.y - outerHeight / 2f
-            val outerCornerR = outerWidth * 0.14f
+            val outerCornerR = outerWidth * 0.16f
 
             // ① ケース上面ハイライト
             drawRoundRect(
@@ -243,12 +243,12 @@ fun SpeedometerClock(
                     startY = outerTop + 4f,
                     endY = outerTop + outerHeight
                 ),
-                topLeft = Offset(outerLeft + 2f, outerTop + 2f),
-                size = Size(outerWidth - 4f, outerHeight - 4f),
+                topLeft = Offset(outerLeft + 2.5f, outerTop + 2.5f),
+                size = Size(outerWidth - 5f, outerHeight - 5f),
                 cornerRadius = CornerRadius(outerCornerR * 0.98f, outerCornerR * 0.98f)
             )
 
-            // ③ 3D 傾斜ベゼル内壁 (文字盤と液晶を包み込む広大リム)
+            // ③ 3D 傾斜ベゼル内壁 (文字盤と液晶を包み込むリム)
             val wallDepth = outerWidth * 0.055f
             val wallLeft = outerLeft + wallDepth
             val wallTop = outerTop + wallDepth
@@ -267,12 +267,12 @@ fun SpeedometerClock(
             )
 
             // 2. メイン文字盤 (正方形領域)
-            val dialPadding = outerWidth * 0.080f
+            val dialPadding = outerWidth * 0.078f
             val dialSize = outerWidth - dialPadding * 2f
             val dialLeft = outerLeft + dialPadding
-            val dialTop = outerTop + outerWidth * 0.065f
+            val dialTop = outerTop + outerWidth * 0.062f
             val dialCenter = Offset(dialLeft + dialSize / 2f, dialTop + dialSize / 2f)
-            val dialCornerR = outerCornerR * 0.50f
+            val dialCornerR = outerCornerR * 0.46f
 
             // 文字盤背景 (スクエア)
             drawRoundRect(
@@ -282,26 +282,26 @@ fun SpeedometerClock(
                 cornerRadius = CornerRadius(dialCornerR, dialCornerR)
             )
 
-            // 3. HONDA純正 エメラルドグリーン格子模様 (縦4本×横5本)
-            val vCols = 5
-            for (i in 1 until vCols) {
-                val gx = dialLeft + (dialSize / vCols) * i
+            // 3. HONDA純正 エメラルドグリーン格子模様 (縦5本×横5本 = 完全正方形 6等分)
+            val gridCols = 6
+            val gridStep = dialSize / gridCols
+            for (i in 1 until gridCols) {
+                val gx = dialLeft + gridStep * i
                 drawLine(
                     color = GridLineGreen,
-                    start = Offset(gx, dialTop + 6f),
-                    end = Offset(gx, dialTop + dialSize - 6f),
-                    strokeWidth = 3.0f
+                    start = Offset(gx, dialTop + 5f),
+                    end = Offset(gx, dialTop + dialSize - 5f),
+                    strokeWidth = 2.6f
                 )
             }
 
-            val hRows = 6
-            for (i in 1 until hRows) {
-                val gy = dialTop + (dialSize / hRows) * i
+            for (i in 1 until gridCols) {
+                val gy = dialTop + gridStep * i
                 drawLine(
                     color = GridLineGreen,
-                    start = Offset(dialLeft + 6f, gy),
-                    end = Offset(dialLeft + dialSize - 6f, gy),
-                    strokeWidth = 3.0f
+                    start = Offset(dialLeft + 5f, gy),
+                    end = Offset(dialLeft + dialSize - 5f, gy),
+                    strokeWidth = 2.6f
                 )
             }
 
@@ -319,21 +319,22 @@ fun SpeedometerClock(
                 )
             }
 
-            // 4. 赤帯 (モトコンポ 30km/h 原付速度警告レッドアーチ): 9時→12時→3時の大型半円180°
-            val arcRadius = dialSize * 0.38f
-            val arcStrokeWidth = dialSize * 0.130f
+            // 4. 赤帯 (モトコンポ 30km/h 速度警告レッドアーチ: 9時→12時の90°扇形アーチ)
+            // 目標デザイン厳密準拠：数字9〜12の内側、グリッド交点(X2,Y2)を通過し、数字とは一切重ならない独立した扇形
+            val arcRadius = gridStep * 1.48f
+            val arcStrokeWidth = gridStep * 0.74f
             drawArc(
-                color = DialTextRed.copy(alpha = 0.98f),
+                color = RedArcColor,
                 startAngle = 180f,
-                sweepAngle = 180f,
+                sweepAngle = 90f,
                 useCenter = false,
                 topLeft = Offset(dialCenter.x - arcRadius, dialCenter.y - arcRadius),
                 size = Size(arcRadius * 2f, arcRadius * 2f),
                 style = Stroke(width = arcStrokeWidth, cap = StrokeCap.Butt)
             )
 
-            // 5. 白い刻み (Minute Ticks: 外端は四角枠に密着、放射状ライン)
-            val boxHalf = dialSize * 0.470f
+            // 5. 白い刻み (Minute Ticks: 外端は四角枠に沿って放射状に配置)
+            val boxHalf = dialSize * 0.472f
             for (i in 0 until 60) {
                 val angleDeg = i * 6f - 90f
                 val angleRad = Math.toRadians(angleDeg.toDouble())
@@ -352,7 +353,7 @@ fun SpeedometerClock(
                 val endY = dialCenter.y + scale * sinA.toFloat()
 
                 val isMajor = i % 5 == 0
-                val tLen = if (isMajor) dialSize * 0.040f else dialSize * 0.022f
+                val tLen = if (isMajor) dialSize * 0.038f else dialSize * 0.020f
                 val tWidth = if (isMajor) 3.5f else 1.8f
 
                 val startX = endX - tLen * cosA.toFloat()
@@ -366,24 +367,24 @@ fun SpeedometerClock(
                 )
             }
 
-            // 6. 直立文字盤数字 (1〜12) の配置: fontSize = 0.145f
-            val fontSize = dialSize * 0.165f
+            // 6. 直立文字盤数字 (1〜12) の配置: 外周グリッドマスに配置し、赤帯と完全に分離
+            val fontSize = dialSize * 0.145f
             textPaintWhite.textSize = fontSize
             textPaintRed.textSize = fontSize
 
             val numPositions = mapOf(
-                12 to Offset(dialCenter.x, dialTop + dialSize * 0.14f),
-                1  to Offset(dialLeft + dialSize * 0.69f, dialTop + dialSize * 0.14f),
-                2  to Offset(dialLeft + dialSize * 0.86f, dialTop + dialSize * 0.28f),
-                3  to Offset(dialLeft + dialSize * 0.87f, dialCenter.y),
-                4  to Offset(dialLeft + dialSize * 0.86f, dialTop + dialSize * 0.72f),
-                5  to Offset(dialLeft + dialSize * 0.69f, dialTop + dialSize * 0.86f),
-                6  to Offset(dialCenter.x, dialTop + dialSize * 0.86f),
-                7  to Offset(dialLeft + dialSize * 0.31f, dialTop + dialSize * 0.86f),
-                8  to Offset(dialLeft + dialSize * 0.14f, dialTop + dialSize * 0.72f),
-                9  to Offset(dialLeft + dialSize * 0.13f, dialCenter.y),
-                10 to Offset(dialLeft + dialSize * 0.145f, dialTop + dialSize * 0.28f),
-                11 to Offset(dialLeft + dialSize * 0.31f, dialTop + dialSize * 0.14f)
+                12 to Offset(dialCenter.x, dialTop + gridStep * 0.48f),
+                1  to Offset(dialLeft + gridStep * 4.35f, dialTop + gridStep * 0.50f),
+                2  to Offset(dialLeft + gridStep * 5.40f, dialTop + gridStep * 1.65f),
+                3  to Offset(dialLeft + dialSize * 0.905f, dialCenter.y),
+                4  to Offset(dialLeft + gridStep * 5.40f, dialTop + gridStep * 4.35f),
+                5  to Offset(dialLeft + gridStep * 4.35f, dialTop + gridStep * 5.52f),
+                6  to Offset(dialCenter.x, dialTop + gridStep * 5.52f),
+                7  to Offset(dialLeft + gridStep * 1.65f, dialTop + gridStep * 5.52f),
+                8  to Offset(dialLeft + gridStep * 0.60f, dialTop + gridStep * 4.35f),
+                9  to Offset(dialLeft + dialSize * 0.095f, dialCenter.y),
+                10 to Offset(dialLeft + gridStep * 0.56f, dialTop + gridStep * 1.65f),
+                11 to Offset(dialLeft + gridStep * 1.65f, dialTop + gridStep * 0.50f)
             )
 
             for (i in 1..12) {
@@ -401,15 +402,15 @@ fun SpeedometerClock(
                 )
             }
 
-            // 7. ネジ 2個 (3D リアル立体ビス)
-            val screwRadius = dialSize * 0.048f
-            val screwY = dialTop + (dialSize / 6f) * 4f
-            val screwX1 = dialLeft + (dialSize / 5f) * 1.5f
-            val screwX2 = dialLeft + (dialSize / 5f) * 3.5f
+            // 7. ネジ 2個 (添付画像：下から2本目の水平グリッド線上、クッキリした立体感)
+            val screwRadius = dialSize * 0.046f
+            val screwY = dialTop + gridStep * 4.0f
+            val screwX1 = dialLeft + gridStep * 1.88f
+            val screwX2 = dialLeft + gridStep * 4.12f
 
-            listOf(screwX1, screwX2).forEach { sx ->
+            listOf(screwX1 to 6f, screwX2 to -4f).forEach { (sx, rotDeg) ->
                 drawCircle(color = ScrewHoleBg, radius = screwRadius * 1.25f, center = Offset(sx, screwY))
-                drawCircle(color = Color.Black.copy(alpha = 0.6f), radius = screwRadius * 1.15f, center = Offset(sx + 2f, screwY + 2f))
+                drawCircle(color = Color.Black.copy(alpha = 0.55f), radius = screwRadius * 1.15f, center = Offset(sx + 1.5f, screwY + 1.5f))
 
                 drawCircle(
                     brush = Brush.radialGradient(
@@ -421,37 +422,44 @@ fun SpeedometerClock(
                     center = Offset(sx, screwY)
                 )
 
-                val sLen = screwRadius * 0.55f
-                drawLine(color = ScrewSlotHighlight, start = Offset(sx - sLen + 1f, screwY - sLen + 1f), end = Offset(sx + sLen + 1f, screwY + sLen + 1f), strokeWidth = 5f)
-                drawLine(color = ScrewSlotHighlight, start = Offset(sx - sLen + 1f, screwY + sLen + 1f), end = Offset(sx + sLen + 1f, screwY - sLen + 1f), strokeWidth = 5f)
-                drawLine(color = ScrewSlotShadow, start = Offset(sx - sLen, screwY - sLen), end = Offset(sx + sLen, screwY + sLen), strokeWidth = 4f)
-                drawLine(color = ScrewSlotShadow, start = Offset(sx - sLen, screwY + sLen), end = Offset(sx + sLen, screwY - sLen), strokeWidth = 4f)
+                // プラス溝 (自然なわずかな回転角と立体ハイライト)
+                rotate(degrees = rotDeg, pivot = Offset(sx, screwY)) {
+                    val sLen = screwRadius * 0.54f
+                    drawLine(color = ScrewSlotHighlight, start = Offset(sx - sLen + 0.8f, screwY + 0.8f), end = Offset(sx + sLen + 0.8f, screwY + 0.8f), strokeWidth = 3.6f)
+                    drawLine(color = ScrewSlotShadow, start = Offset(sx - sLen, screwY), end = Offset(sx + sLen, screwY), strokeWidth = 3.2f)
+                    drawLine(color = ScrewSlotHighlight, start = Offset(sx + 0.8f, screwY - sLen + 0.8f), end = Offset(sx + 0.8f, screwY + sLen + 0.8f), strokeWidth = 3.6f)
+                    drawLine(color = ScrewSlotShadow, start = Offset(sx, screwY - sLen), end = Offset(sx, screwY + sLen), strokeWidth = 3.2f)
+                }
             }
 
             // 8. HONDA モトコンポ純正 マスタードイエロー 3D アナログ針描画
-            val hourHandLength = dialSize * 0.33f
-            val minuteHandLength = dialSize * 0.46f
-            val shadowOffset = Offset(8f, 8f)
+            val hourHandLength = dialSize * 0.320f
+            val minuteHandLength = dialSize * 0.450f
+            val shadowOffset = Offset(7f, 7f)
 
             // --- 時針 (Hour Hand) ---
             rotate(degrees = uiState.hourAngleDegree - 90f, pivot = dialCenter) {
                 val L = hourHandLength
-                val W = dialSize * 0.100f
-                val T = dialSize * 0.050f
+                val W = dialSize * 0.088f
+                val T = dialSize * 0.045f
+                val tipW = dialSize * 0.030f
 
                 val shadowPath = Path().apply {
                     moveTo(dialCenter.x - T + shadowOffset.x, dialCenter.y - W + shadowOffset.y)
-                    lineTo(dialCenter.x + L - 16f + shadowOffset.x, dialCenter.y - W * 0.35f + shadowOffset.y)
-                    lineTo(dialCenter.x + L + shadowOffset.x, dialCenter.y + shadowOffset.y)
-                    lineTo(dialCenter.x + L - 16f + shadowOffset.x, dialCenter.y + W * 0.35f + shadowOffset.y)
+                    lineTo(dialCenter.x + L * 0.38f + shadowOffset.x, dialCenter.y - W * 0.42f + shadowOffset.y)
+                    lineTo(dialCenter.x + L + shadowOffset.x, dialCenter.y - tipW + shadowOffset.y)
+                    lineTo(dialCenter.x + L + shadowOffset.x, dialCenter.y + tipW + shadowOffset.y)
+                    lineTo(dialCenter.x + L * 0.38f + shadowOffset.x, dialCenter.y + W * 0.42f + shadowOffset.y)
                     lineTo(dialCenter.x - T + shadowOffset.x, dialCenter.y + W + shadowOffset.y)
                     close()
                 }
                 drawPath(path = shadowPath, color = HandDropShadow)
 
+                // 上半分 (ハイライト面)
                 val upperPath = Path().apply {
                     moveTo(dialCenter.x - T, dialCenter.y - W)
-                    lineTo(dialCenter.x + L - 16f, dialCenter.y - W * 0.30f)
+                    lineTo(dialCenter.x + L * 0.38f, dialCenter.y - W * 0.42f)
+                    lineTo(dialCenter.x + L, dialCenter.y - tipW)
                     lineTo(dialCenter.x + L, dialCenter.y)
                     lineTo(dialCenter.x - T, dialCenter.y)
                     close()
@@ -461,10 +469,12 @@ fun SpeedometerClock(
                     path = upperPath
                 )
 
+                // 下半分 (シャドウ面)
                 val lowerPath = Path().apply {
                     moveTo(dialCenter.x - T, dialCenter.y)
                     lineTo(dialCenter.x + L, dialCenter.y)
-                    lineTo(dialCenter.x + L - 16f, dialCenter.y + W * 0.30f)
+                    lineTo(dialCenter.x + L, dialCenter.y + tipW)
+                    lineTo(dialCenter.x + L * 0.38f, dialCenter.y + W * 0.42f)
                     lineTo(dialCenter.x - T, dialCenter.y + W)
                     close()
                 }
@@ -473,43 +483,50 @@ fun SpeedometerClock(
                     path = lowerPath
                 )
 
+                // センター稜線
                 drawLine(
-                    color = InnerBezelFrame.copy(alpha = 0.6f),
+                    color = InnerBezelFrame.copy(alpha = 0.5f),
                     start = Offset(dialCenter.x - T, dialCenter.y),
                     end = Offset(dialCenter.x + L, dialCenter.y),
-                    strokeWidth = 2.0f
+                    strokeWidth = 1.8f
                 )
 
+                // 輪郭線
                 val fullPath = Path().apply {
                     moveTo(dialCenter.x - T, dialCenter.y - W)
-                    lineTo(dialCenter.x + L - 16f, dialCenter.y - W * 0.30f)
-                    lineTo(dialCenter.x + L, dialCenter.y)
-                    lineTo(dialCenter.x + L - 16f, dialCenter.y + W * 0.30f)
+                    lineTo(dialCenter.x + L * 0.38f, dialCenter.y - W * 0.42f)
+                    lineTo(dialCenter.x + L, dialCenter.y - tipW)
+                    lineTo(dialCenter.x + L, dialCenter.y + tipW)
+                    lineTo(dialCenter.x + L * 0.38f, dialCenter.y + W * 0.42f)
                     lineTo(dialCenter.x - T, dialCenter.y + W)
                     close()
                 }
-                drawPath(path = fullPath, color = InnerBezelFrame, style = Stroke(2.0f))
+                drawPath(path = fullPath, color = InnerBezelFrame, style = Stroke(1.8f))
             }
 
             // --- 分針 (Minute Hand) ---
             rotate(degrees = uiState.minuteAngleDegree - 90f, pivot = dialCenter) {
                 val L = minuteHandLength
-                val W = dialSize * 0.080f
-                val T = dialSize * 0.050f
+                val W = dialSize * 0.076f
+                val T = dialSize * 0.045f
+                val tipW = dialSize * 0.024f
 
                 val shadowPath = Path().apply {
                     moveTo(dialCenter.x - T + shadowOffset.x, dialCenter.y - W + shadowOffset.y)
-                    lineTo(dialCenter.x + L - 16f + shadowOffset.x, dialCenter.y - W * 0.35f + shadowOffset.y)
-                    lineTo(dialCenter.x + L + shadowOffset.x, dialCenter.y + shadowOffset.y)
-                    lineTo(dialCenter.x + L - 16f + shadowOffset.x, dialCenter.y + W * 0.35f + shadowOffset.y)
+                    lineTo(dialCenter.x + L * 0.35f + shadowOffset.x, dialCenter.y - W * 0.42f + shadowOffset.y)
+                    lineTo(dialCenter.x + L + shadowOffset.x, dialCenter.y - tipW + shadowOffset.y)
+                    lineTo(dialCenter.x + L + shadowOffset.x, dialCenter.y + tipW + shadowOffset.y)
+                    lineTo(dialCenter.x + L * 0.35f + shadowOffset.x, dialCenter.y + W * 0.42f + shadowOffset.y)
                     lineTo(dialCenter.x - T + shadowOffset.x, dialCenter.y + W + shadowOffset.y)
                     close()
                 }
                 drawPath(path = shadowPath, color = HandDropShadow)
 
+                // 上半分 (ハイライト面)
                 val upperPath = Path().apply {
                     moveTo(dialCenter.x - T, dialCenter.y - W)
-                    lineTo(dialCenter.x + L - 16f, dialCenter.y - W * 0.30f)
+                    lineTo(dialCenter.x + L * 0.35f, dialCenter.y - W * 0.42f)
+                    lineTo(dialCenter.x + L, dialCenter.y - tipW)
                     lineTo(dialCenter.x + L, dialCenter.y)
                     lineTo(dialCenter.x - T, dialCenter.y)
                     close()
@@ -519,10 +536,12 @@ fun SpeedometerClock(
                     path = upperPath
                 )
 
+                // 下半分 (シャドウ面)
                 val lowerPath = Path().apply {
                     moveTo(dialCenter.x - T, dialCenter.y)
                     lineTo(dialCenter.x + L, dialCenter.y)
-                    lineTo(dialCenter.x + L - 16f, dialCenter.y + W * 0.30f)
+                    lineTo(dialCenter.x + L, dialCenter.y + tipW)
+                    lineTo(dialCenter.x + L * 0.35f, dialCenter.y + W * 0.42f)
                     lineTo(dialCenter.x - T, dialCenter.y + W)
                     close()
                 }
@@ -531,74 +550,107 @@ fun SpeedometerClock(
                     path = lowerPath
                 )
 
+                // センター稜線
                 drawLine(
-                    color = InnerBezelFrame.copy(alpha = 0.6f),
+                    color = InnerBezelFrame.copy(alpha = 0.5f),
                     start = Offset(dialCenter.x - T, dialCenter.y),
                     end = Offset(dialCenter.x + L, dialCenter.y),
-                    strokeWidth = 2.0f
+                    strokeWidth = 1.8f
                 )
 
+                // 輪郭線
                 val fullPath = Path().apply {
                     moveTo(dialCenter.x - T, dialCenter.y - W)
-                    lineTo(dialCenter.x + L - 16f, dialCenter.y - W * 0.30f)
-                    lineTo(dialCenter.x + L, dialCenter.y)
-                    lineTo(dialCenter.x + L - 16f, dialCenter.y + W * 0.30f)
+                    lineTo(dialCenter.x + L * 0.35f, dialCenter.y - W * 0.42f)
+                    lineTo(dialCenter.x + L, dialCenter.y - tipW)
+                    lineTo(dialCenter.x + L, dialCenter.y + tipW)
+                    lineTo(dialCenter.x + L * 0.35f, dialCenter.y + W * 0.42f)
                     lineTo(dialCenter.x - T, dialCenter.y + W)
                     close()
                 }
-                drawPath(path = fullPath, color = InnerBezelFrame, style = Stroke(2.0f))
+                drawPath(path = fullPath, color = InnerBezelFrame, style = Stroke(1.8f))
             }
 
-            // 9. 3D センターハブキャップ (2段ドーム構造: 大型化)
-            val capR1 = dialSize * 0.110f
-            val capR2 = capR1 * 0.50f
+            // 9. 3D センターハブキャップ & 下部爪パーツ (添付画像通りの斜め下2つの爪ウィング造形)
+            val capR1 = dialSize * 0.082f
 
-            drawCircle(color = HandDropShadow, radius = capR1 * 1.15f, center = Offset(dialCenter.x + 6f, dialCenter.y + 6f))
+            // ① ハブ下左右の2つの斜め爪ウィング
+            val leftWingPath = Path().apply {
+                moveTo(dialCenter.x - capR1 * 0.70f, dialCenter.y + capR1 * 0.35f)
+                lineTo(dialCenter.x - capR1 * 1.15f, dialCenter.y + capR1 * 0.65f)
+                lineTo(dialCenter.x - capR1 * 0.95f, dialCenter.y + capR1 * 0.95f)
+                lineTo(dialCenter.x - capR1 * 0.45f, dialCenter.y + capR1 * 0.70f)
+                close()
+            }
+            val rightWingPath = Path().apply {
+                moveTo(dialCenter.x + capR1 * 0.70f, dialCenter.y + capR1 * 0.35f)
+                lineTo(dialCenter.x + capR1 * 1.15f, dialCenter.y + capR1 * 0.65f)
+                lineTo(dialCenter.x + capR1 * 0.95f, dialCenter.y + capR1 * 0.95f)
+                lineTo(dialCenter.x + capR1 * 0.45f, dialCenter.y + capR1 * 0.70f)
+                close()
+            }
+
+            listOf(leftWingPath, rightWingPath).forEach { wPath ->
+                val shadowP = Path().apply { addPath(wPath, Offset(4f, 4f)) }
+                drawPath(path = shadowP, color = HandDropShadow)
+                drawPath(
+                    path = wPath,
+                    brush = Brush.verticalGradient(
+                        listOf(HandYellowMain, HandYellowShadow),
+                        startY = dialCenter.y,
+                        endY = dialCenter.y + capR1 * 1.1f
+                    )
+                )
+                drawPath(path = wPath, color = InnerBezelFrame, style = Stroke(1.8f))
+            }
+
+            // ② 丸型センタードームキャップ
+            drawCircle(color = HandDropShadow, radius = capR1 * 1.12f, center = Offset(dialCenter.x + 4f, dialCenter.y + 4f))
 
             drawCircle(
                 brush = Brush.radialGradient(
                     colors = listOf(HandYellowHighlight, HandYellowMain, HandYellowShadow),
                     center = Offset(dialCenter.x - capR1 * 0.3f, dialCenter.y - capR1 * 0.3f),
-                    radius = capR1 * 1.2f
+                    radius = capR1 * 1.1f
                 ),
                 radius = capR1,
                 center = dialCenter
             )
-            drawCircle(color = InnerBezelFrame, radius = capR1, center = dialCenter, style = Stroke(2.5f))
+            drawCircle(color = InnerBezelFrame, radius = capR1, center = dialCenter, style = Stroke(2.2f))
 
-            drawCircle(color = InnerBezelFrame.copy(alpha = 0.40f), radius = capR2 + 2f, center = Offset(dialCenter.x + 1.5f, dialCenter.y + 1.5f))
+            val capR2 = capR1 * 0.52f
             drawCircle(
                 brush = Brush.radialGradient(
-                    colors = listOf(HandYellowHighlight, HandYellowMain, HandYellowShadow),
-                    center = Offset(dialCenter.x - capR2 * 0.3f, dialCenter.y - capR2 * 0.3f),
-                    radius = capR2 * 1.2f
+                    colors = listOf(HandYellowHighlight, HandYellowMain),
+                    center = Offset(dialCenter.x - capR2 * 0.2f, dialCenter.y - capR2 * 0.2f),
+                    radius = capR2 * 1.1f
                 ),
                 radius = capR2,
                 center = dialCenter
             )
-            drawCircle(color = InnerBezelFrame, radius = capR2, center = dialCenter, style = Stroke(1.8f))
+            drawCircle(color = InnerBezelFrame.copy(alpha = 0.6f), radius = capR2, center = dialCenter, style = Stroke(1.5f))
 
-            // 10. ベゼル最下部: オドメーター風 7セグTN液晶パネル
-            val lcdWidth = dialSize * 0.70f
-            val lcdHeight = lcdWidth * 0.220f
-            val lcdTop = dialTop + dialSize + outerHeight * 0.015f
+            // 10. ベゼル最下部: オドメーター風 7セグTN液晶パネル (添付画像スタイル)
+            val lcdWidth = dialSize * 0.68f
+            val lcdHeight = lcdWidth * 0.230f
+            val lcdTop = dialTop + dialSize + outerHeight * 0.012f
             val lcdTopLeft = Offset(
                 center.x - lcdWidth / 2f,
                 lcdTop
             )
 
-            // ① 液晶成型穴 (インセットシャドウ)
+            // ① 液晶成型穴 (ベゼルインセット段差)
             drawRoundRect(
                 color = LcdFrameShadow,
-                topLeft = Offset(lcdTopLeft.x - 6f, lcdTopLeft.y - 6f),
-                size = Size(lcdWidth + 12f, lcdHeight + 12f),
-                cornerRadius = CornerRadius(12f, 12f)
+                topLeft = Offset(lcdTopLeft.x - 7f, lcdTopLeft.y - 6f),
+                size = Size(lcdWidth + 14f, lcdHeight + 12f),
+                cornerRadius = CornerRadius(14f, 14f)
             )
             drawRoundRect(
-                color = Color.Black.copy(alpha = 0.85f),
-                topLeft = Offset(lcdTopLeft.x - 3f, lcdTopLeft.y - 3f),
-                size = Size(lcdWidth + 6f, lcdHeight + 6f),
-                cornerRadius = CornerRadius(9f, 9f)
+                color = Color.Black.copy(alpha = 0.90f),
+                topLeft = Offset(lcdTopLeft.x - 3.5f, lcdTopLeft.y - 3f),
+                size = Size(lcdWidth + 7f, lcdHeight + 6f),
+                cornerRadius = CornerRadius(10f, 10f)
             )
 
             // ② TN液晶ガラス基板 (レトロオリーブセピア)
@@ -610,60 +662,64 @@ fun SpeedometerClock(
                 ),
                 topLeft = lcdTopLeft,
                 size = Size(lcdWidth, lcdHeight),
-                cornerRadius = CornerRadius(7f, 7f)
+                cornerRadius = CornerRadius(8f, 8f)
             )
 
             // ③ 液晶反射ハイライト
             drawRoundRect(
                 brush = Brush.linearGradient(
-                    listOf(Color.White.copy(alpha = 0.10f), Color.Transparent),
+                    listOf(Color.White.copy(alpha = 0.12f), Color.Transparent),
                     start = Offset(lcdTopLeft.x, lcdTopLeft.y),
-                    end = Offset(lcdTopLeft.x + lcdWidth * 0.5f, lcdTopLeft.y + lcdHeight)
+                    end = Offset(lcdTopLeft.x + lcdWidth * 0.45f, lcdTopLeft.y + lcdHeight)
                 ),
                 topLeft = lcdTopLeft,
                 size = Size(lcdWidth, lcdHeight),
-                cornerRadius = CornerRadius(7f, 7f)
+                cornerRadius = CornerRadius(8f, 8f)
             )
 
+            // --- TN液晶テキストデータ準備 ---
             val monthStr = SimpleDateFormat("MMM", Locale.US).format(uiState.currentTime).uppercase()
             val dayStr = SimpleDateFormat("dd", Locale.US).format(uiState.currentTime)
             val timeDigits = uiState.currentTime.toTimeString()
             val amPmStr = uiState.currentTime.toAmPmString()
 
+            // 添付画像形式: "Sunny, 72°F" (英語天気名 + カンマ + 温度)
             val weatherStr = if (userSettings.showWeather) {
-                "⛅${uiState.weatherInfo.temperatureCelsius.toFormattedTemperature(userSettings.temperatureUnit)}"
+                val cond = uiState.weatherInfo.conditionTextEn.ifEmpty { "Sunny" }
+                val temp = uiState.weatherInfo.temperatureCelsius.toFormattedIntTemperature(userSettings.temperatureUnit)
+                "$cond, $temp"
             } else ""
 
-            val batteryStr = if (userSettings.showBattery) {
-                "🔋${uiState.batteryState.levelPercentage.toPercentString()}"
+            val batteryPercentStr = if (userSettings.showBattery) {
+                uiState.batteryState.levelPercentage.toPercentString()
             } else ""
 
             // --- TN液晶テキスト描画 ---
 
-            // ① 左ブロック: 月 (上) / 日 (下) & AM/PM
-            val col1X = lcdTopLeft.x + lcdWidth * 0.035f
-            lcdTextSubLeft.textSize = lcdHeight * 0.23f
-            drawContext.canvas.nativeCanvas.drawText(monthStr, col1X, lcdTopLeft.y + lcdHeight * 0.36f, lcdTextSubLeft)
-            drawContext.canvas.nativeCanvas.drawText(dayStr, col1X, lcdTopLeft.y + lcdHeight * 0.80f, lcdTextSubLeft)
+            // ① 左ブロック: 月 (上) / 日 (下) & AM/PM (添付画像通りの配置)
+            val col1X = lcdTopLeft.x + lcdWidth * 0.040f
+            lcdTextSubLeft.textSize = lcdHeight * 0.28f
+            drawContext.canvas.nativeCanvas.drawText(monthStr, col1X, lcdTopLeft.y + lcdHeight * 0.38f, lcdTextSubLeft)
+            drawContext.canvas.nativeCanvas.drawText(dayStr, col1X, lcdTopLeft.y + lcdHeight * 0.82f, lcdTextSubLeft)
 
-            val amPmPaint = Paint(lcdTextSubLeft).apply { textSize = lcdHeight * 0.17f; textAlign = Paint.Align.LEFT }
-            drawContext.canvas.nativeCanvas.drawText(amPmStr, col1X + lcdWidth * 0.11f, lcdTopLeft.y + lcdHeight * 0.80f, amPmPaint)
+            val amPmPaint = Paint(lcdTextSubLeft).apply { textSize = lcdHeight * 0.20f; textAlign = Paint.Align.LEFT }
+            drawContext.canvas.nativeCanvas.drawText(amPmStr, col1X + lcdWidth * 0.145f, lcdTopLeft.y + lcdHeight * 0.38f, amPmPaint)
 
-            // ② 中央ブロック: 極太・大画面 7セグメントデジタル時刻描画
-            val segW = lcdHeight * 0.24f
+            // ② 中央ブロック: 7セグメントデジタル時刻描画 (時:分)
+            val segW = lcdHeight * 0.235f
             val segH = lcdHeight * 0.68f
             val segY = lcdTopLeft.y + lcdHeight * 0.16f
-            val totalSegWidth = segW * 4.48f + segW * 0.4f
-            val startSegX = center.x - totalSegWidth / 2f + segW * 0.15f
+            val totalSegWidth = segW * 4.45f + segW * 0.40f
+            val startSegX = center.x - totalSegWidth / 2f + segW * 0.10f
 
             // ゴースト 88:88
             var currentGhostX = startSegX
             for (c in "88:88") {
                 if (c == ':') {
-                    val dotR = segW * 0.13f
-                    drawCircle(color = LcdTextGhost, radius = dotR, center = Offset(currentGhostX + segW * 0.2f, segY + segH * 0.3f))
-                    drawCircle(color = LcdTextGhost, radius = dotR, center = Offset(currentGhostX + segW * 0.2f, segY + segH * 0.7f))
-                    currentGhostX += segW * 0.4f
+                    val dotR = segW * 0.12f
+                    drawCircle(color = LcdTextGhost, radius = dotR, center = Offset(currentGhostX + segW * 0.20f, segY + segH * 0.32f))
+                    drawCircle(color = LcdTextGhost, radius = dotR, center = Offset(currentGhostX + segW * 0.20f, segY + segH * 0.68f))
+                    currentGhostX += segW * 0.40f
                 } else {
                     draw7SegmentDigit(
                         digit = '8',
@@ -671,9 +727,9 @@ fun SpeedometerClock(
                         digitWidth = segW,
                         digitHeight = segH,
                         color = LcdTextGhost,
-                        thickness = segW * 0.26f
+                        thickness = segW * 0.24f
                     )
-                    currentGhostX += segW * 1.12f
+                    currentGhostX += segW * 1.10f
                 }
             }
 
@@ -681,10 +737,10 @@ fun SpeedometerClock(
             var currentSegX = startSegX
             for (c in timeDigits) {
                 if (c == ':') {
-                    val dotR = segW * 0.13f
-                    drawCircle(color = LcdTextDark, radius = dotR, center = Offset(currentSegX + segW * 0.2f, segY + segH * 0.3f))
-                    drawCircle(color = LcdTextDark, radius = dotR, center = Offset(currentSegX + segW * 0.2f, segY + segH * 0.7f))
-                    currentSegX += segW * 0.4f
+                    val dotR = segW * 0.12f
+                    drawCircle(color = LcdTextDark, radius = dotR, center = Offset(currentSegX + segW * 0.20f, segY + segH * 0.32f))
+                    drawCircle(color = LcdTextDark, radius = dotR, center = Offset(currentSegX + segW * 0.20f, segY + segH * 0.68f))
+                    currentSegX += segW * 0.40f
                 } else {
                     draw7SegmentDigit(
                         digit = c,
@@ -692,17 +748,59 @@ fun SpeedometerClock(
                         digitWidth = segW,
                         digitHeight = segH,
                         color = LcdTextDark,
-                        thickness = segW * 0.26f
+                        thickness = segW * 0.24f
                     )
-                    currentSegX += segW * 1.12f
+                    currentSegX += segW * 1.10f
                 }
             }
 
-            // ③ 右ブロック: 天気 (上) / バッテリー (下)
-            val col3X = lcdTopLeft.x + lcdWidth * 0.965f
-            lcdTextSubRight.textSize = lcdHeight * 0.19f
-            drawContext.canvas.nativeCanvas.drawText(weatherStr, col3X, lcdTopLeft.y + lcdHeight * 0.36f, lcdTextSubRight)
-            drawContext.canvas.nativeCanvas.drawText(batteryStr, col3X, lcdTopLeft.y + lcdHeight * 0.80f, lcdTextSubRight)
+            // ③ 右ブロック: 天気テキスト (上) / ベクター液晶バッテリーアイコン + % (下)
+            val col3RightX = lcdTopLeft.x + lcdWidth * 0.960f
+            lcdTextSubRight.textSize = lcdHeight * 0.21f
+            if (weatherStr.isNotEmpty()) {
+                drawContext.canvas.nativeCanvas.drawText(weatherStr, col3RightX, lcdTopLeft.y + lcdHeight * 0.38f, lcdTextSubRight)
+            }
+
+            if (batteryPercentStr.isNotEmpty()) {
+                drawContext.canvas.nativeCanvas.drawText(batteryPercentStr, col3RightX, lcdTopLeft.y + lcdHeight * 0.82f, lcdTextSubRight)
+
+                // 添付画像通りのベクター液晶バッテリーアイコン描画
+                val textWidth = lcdTextSubRight.measureText(batteryPercentStr)
+                val battW = lcdHeight * 0.28f
+                val battH = lcdHeight * 0.17f
+                val battRight = col3RightX - textWidth - 5f
+                val battLeft = battRight - battW
+                val battTop = lcdTopLeft.y + lcdHeight * 0.82f - battH * 0.95f
+
+                // 外枠
+                drawRoundRect(
+                    color = LcdTextDark,
+                    topLeft = Offset(battLeft, battTop),
+                    size = Size(battW, battH),
+                    cornerRadius = CornerRadius(2.5f, 2.5f),
+                    style = Stroke(width = 1.6f)
+                )
+                // プラス極突起 (右端中央)
+                val tipH = battH * 0.45f
+                drawRoundRect(
+                    color = LcdTextDark,
+                    topLeft = Offset(battRight, battTop + (battH - tipH) / 2f),
+                    size = Size(2.2f, tipH),
+                    cornerRadius = CornerRadius(1f, 1f)
+                )
+                // 内部充電バー
+                val level = (uiState.batteryState.levelPercentage / 100f).coerceIn(0f, 1f)
+                val innerPadding = 2.0f
+                val barMaxWidth = battW - innerPadding * 2f
+                val barWidth = barMaxWidth * level
+                if (barWidth > 0f) {
+                    drawRect(
+                        color = LcdTextDark,
+                        topLeft = Offset(battLeft + innerPadding, battTop + innerPadding),
+                        size = Size(barWidth, battH - innerPadding * 2f)
+                    )
+                }
+            }
         }
     }
 }

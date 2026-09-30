@@ -26,6 +26,7 @@ data class HourlyWeatherDto(
  */
 data class WeatherInfo(
     val conditionText: String = "晴れ",
+    val conditionTextEn: String = "Sunny",
     val weatherIconSymbol: String = "☀️",
     val temperatureCelsius: Double = 22.5,
     val humidityPercent: Int = 50,
